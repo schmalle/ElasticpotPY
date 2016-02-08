@@ -9,7 +9,7 @@ RUN apt-get update -y && apt-get upgrade -y
 
 # Install packages
 RUN apt-get install -y python3 pip3 python3-setuptools supervisor git
-RUN easy_install3 bottle requests simpleconfigparser
+RUN easy_install3 bottle requests simpleconfigparser configparser
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 10
 
 # Setup user, groups and configs
