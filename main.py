@@ -16,10 +16,11 @@ def getConfig():
         username = config2.get("EWS", "username")
         token = config2.get("EWS", "token")
         server = config2.get("EWS", "rhost_first")
+        nodeid = config2.get("GLASTOPFV3", "nodeid")
 
-        return (username, token, server)
+        return (username, token, server, nodeid)
     else:
-        return (None, None, None)
+        return (None, None, None, None)
 
 
 
@@ -29,7 +30,12 @@ def getConfig():
 #
 def postdata(url, content, ip):
 
-    username, token, server = getConfig()
+    username, token, server, nodeid = getConfig()
+
+    if (username == None):
+        return
+
+    nodeid = "elasticpot-" + nodeid
 
     xml = """<EWS-SimpleMessage version="2.0">
     <Authentication>
@@ -38,7 +44,7 @@ def postdata(url, content, ip):
     </Authentication>
 
     <Alert>
-        <Analyzer id="4711"/>
+        <Analyzer id="_NODEID_"/>
         <CreateTime tz="+0200">2015-09-09 16:39:21</CreateTime>
         <Source category="ipv4" port="" protocol="tcp">_IP_</Source>
         <Target category="ipv4" port="80" protocol="tcp">1.2.3.4</Target>
@@ -54,6 +60,7 @@ def postdata(url, content, ip):
     xml = xml.replace("_IP_", ip)
     xml = xml.replace("_URL_", url)
     xml = xml.replace("_RAW_", out.decode("utf-8") )
+    xml = xml.replace("_NODEID_", nodeid)
 
 
 
@@ -90,4 +97,4 @@ def handleSearchExploit():
     return "Found attack: " + request.url + postContent
 
 
-run(host='localhost', port=9404)
+run(host='localhost', port=9200)
