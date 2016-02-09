@@ -69,10 +69,6 @@ def postdata(url, content, ip):
 
 
 
-#@route('/hello/<name>')
-#def hello(name):
-#    return template('<b>Hello {{name}}</b>!', name=name)
-
 @route('/')
 def index():
 
@@ -97,4 +93,4 @@ def handleSearchExploit():
     return "Found attack: " + request.url + postContent
 
 
-run(host='localhost', port=9200)
+run(host='0.0.0.0', port=9200) # host='localhost',
