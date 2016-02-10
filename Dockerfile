@@ -4,22 +4,23 @@
 FROM ubuntu:14.04.3
 MAINTAINER MS
 
+ENV DEBIAN_FRONTEND noninteractive
+
 EXPOSE 9200
 
 # Setup apt
-RUN apt-get update -y && apt-get upgrade -y
+RUN ln -snf /bin/bash /bin/sh && apt-get update -y && apt-get upgrade -y
 
 # Install packages
-RUN apt-get install -y python3 python3-setuptools supervisor git
-RUN easy_install3 bottle requests configparser
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 10
+RUN apt-get install -y python python-setuptools supervisor git
+RUN easy_install bottle requests configparser
 
 # Setup user, groups and configs
 RUN addgroup --gid 2000 tpot && \
     adduser --system --no-create-home --shell /bin/bash --uid 2000 --disabled-password --disabled-login --gid 2000 tpot
 
 ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-ADD start.sh /opt/start.sh
+# ADD start.sh /opt/start.sh
 
 # Clean up
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
