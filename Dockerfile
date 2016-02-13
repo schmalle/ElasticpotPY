@@ -13,7 +13,7 @@ RUN ln -snf /bin/bash /bin/sh && apt-get update -y && apt-get upgrade -y
 
 # Install packages
 RUN apt-get install -y python python-setuptools supervisor git
-RUN easy_install bottle requests configparser
+RUN easy_install bottle requests configparser datetime
 
 # Setup user, groups and configs
 RUN addgroup --gid 2000 tpot && \
