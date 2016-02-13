@@ -3,6 +3,7 @@ import requests
 import os.path
 import configparser
 import base64
+import datetime
 
 
 
@@ -23,6 +24,16 @@ def getConfig():
         return (None, None, None, None)
 
 
+def logData(attackerIP, attackerRequest, host):
+
+    if os.path.isfile('/data/ews/conf/ews.cfg'):
+
+        curDate = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%dT%H:%M:%S')
+
+        dumpStr = "{\"timestamp\":\"" + curDate + "\",\"event_type\":\"alert\",\"src_ip\":\""+attackerIP+"\",\"src_port\":44927,\"dest_ip\":\"127.0.0.1\",\"dest_port\":9200,\"honeypot\":{\"name\":\"Elasticpot\",\"nodeid\":\"elasticsearch\"}}\r\n"
+
+        with open("/data/elasticpot/log/elasticpot.log", "a") as myfile:
+            myfile.write(dumpStr)
 
 
 #
@@ -34,6 +45,8 @@ def postdata(url, content, ip):
 
     if (username == None):
         return
+
+    logData(ip, url, server)
 
     nodeid = "elasticpot-" + nodeid
 
@@ -78,6 +91,13 @@ def index():
     return indexData
 
 
+@route('/_search', method='GET')
+def handleSearchExploitGet():
+
+    ip = request.environ.get('REMOTE_ADDR')
+    postdata(request.url, request.url , ip)
+    return "Found attack: " + request.url
+
 @route('/_search', method='POST')
 def handleSearchExploit():
 
@@ -86,8 +106,6 @@ def handleSearchExploit():
 
     for l in request.body:
         postContent += l.decode("utf-8")
-
-
 
     postdata(request.url, request.url + "Body: " + postContent, ip)
     return "Found attack: " + request.url + postContent
