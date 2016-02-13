@@ -80,6 +80,11 @@ def postdata(url, content, ip):
     headers = {'Content-Type': 'application/xml'}
     requests.post(server, data=xml, headers=headers)
 
+@route('/_plugin/head')
+def pluginhead():
+    txt = open("./templates/pluginhead.txt")
+    indexData = txt.read()
+    return indexData
 
 
 @route('/')
