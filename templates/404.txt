@@ -1,0 +1,1 @@
+{"error":{"root_cause":[{"type":"index_not_found_exception","reason":"no such index","resource.type":"index_or_alias","resource.id":"test","index":"test"}],"type":"index_not_found_exception","reason":"no such index","resource.type":"index_or_alias","resource.id":"test","index":"test"},"status":404}

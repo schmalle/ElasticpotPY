@@ -1,0 +1,16 @@
+<EWS-SimpleMessage version="2.0">
+    <Authentication>
+        <username>tbd</username>
+        <token>tbd</token>
+    </Authentication>
+
+    <Alert>
+        <Analyzer id="_NODEID_"/>
+        <CreateTime tz="+0200">_TIME_</CreateTime>
+        <Source category="ipv4" port="" protocol="tcp">_IP_</Source>
+        <Target category="ipv4" port="80" protocol="tcp">1.2.3.4</Target>
+        <Request type="url">_URL_</Request>
+        <Request type="raw">_RAW_</Request>
+        <Request type="description">ElasticSearch Honeypot : Elasticpot</Request>
+    </Alert>
+</EWS-SimpleMessage>
