@@ -1,7 +1,7 @@
 <EWS-SimpleMessage version="2.0">
     <Authentication>
-        <username>tbd</username>
-        <token>tbd</token>
+        <username>_USERNAME_</username>
+        <token>_TOKEN_</token>
     </Authentication>
 
     <Alert>

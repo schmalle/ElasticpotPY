@@ -59,6 +59,9 @@ def postdata(url, content, ip):
     out = base64.b64encode(b)
 
     xml = xml.replace("_IP_", ip)
+    xml = xml.replace("_USERNAME_", username)
+    xml = xml.replace("_TOKEN_", token)
+
     xml = xml.replace("_URL_", url)
     xml = xml.replace("_RAW_", out.decode("utf-8") )
     xml = xml.replace("_NODEID_", nodeid)
