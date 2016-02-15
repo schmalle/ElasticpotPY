@@ -4,7 +4,7 @@ import os.path
 import configparser
 import base64
 import datetime
-
+import codecs
 
 
 #
@@ -55,8 +55,7 @@ def postdata(url, content, ip):
     txt = open("./templates/ews.txt")
     xml = txt.read()
 
-    b = bytes(url, 'utf-8')
-    out = base64.b64encode(b)
+    out = codecs.encode(url.encode("UTF-8"), 'base64_codec')
 
     xml = xml.replace("_IP_", ip)
     xml = xml.replace("_USERNAME_", username)
