@@ -2,8 +2,9 @@ ElasticPot - Python edition
 
 Simple elasticpot honeypot
 
+
 - compatible with DTAG T-Pot environment
-- available also as dockerized versions
+- available also as dockerized versions (see docker hub)
 
 
 Contact:
