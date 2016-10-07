@@ -39,16 +39,16 @@ def logData(attackerIP, attackerRequest, host):
 
 
 #
-# send the data back home
+# send the data back to the defined server (e.g. DTAG T-Pot environment)
 #
 def postdata(url, content, ip):
 
     username, token, server, nodeid = getConfig()
 
+    logData(ip, url, server)
+
     if (username == None):
         return
-
-    logData(ip, url, server)
 
     nodeid = "elasticpot-" + nodeid
 
@@ -72,6 +72,7 @@ def postdata(url, content, ip):
     headers = {'Content-Type': 'application/xml'}
     requests.post(server, data=xml, headers=headers)
 
+
 @route('/_plugin/head')
 def pluginhead():
     txt = open("./templates/pluginhead.txt")
@@ -82,12 +83,16 @@ def pluginhead():
 #def createindex(index):
 
 
-
 @route('/', method='GET')
 def index():
 
     txt = open("./templates/index.txt")
     indexData = txt.read()
+
+    ip = request.environ.get('REMOTE_ADDR')
+    username, token, server, nodeid = getConfig()
+
+    logData(ip, request.url, server)
 
     return indexData
 
@@ -98,6 +103,16 @@ def index():
 def error404(error):
     txt = open("./templates/404.txt")
     indexData = txt.read()
+    postContent = ""
+
+    for l in request.body:
+        postContent += l.decode("utf-8")
+
+    print("Access to not existing ressource: " + request.url + postContent)
+    ip = request.environ.get('REMOTE_ADDR')
+    username, token, server, nodeid = getConfig()
+
+    logData(ip, request.url, server)
 
     return indexData
 
@@ -106,6 +121,11 @@ def error404(error):
 def getindeces():
     txt = open("./templates/getindeces.txt")
     indexData = txt.read()
+
+    ip = request.environ.get('REMOTE_ADDR')
+    username, token, server, nodeid = getConfig()
+
+    logData(ip, request.url, server)
 
     return indexData
 
@@ -127,9 +147,10 @@ def handleSearchExploit():
     for l in request.body:
         postContent += l.decode("utf-8")
 
+    print("Found possible attack (_search): " + request.url + postContent)
+
     postdata(request.url, request.url + "Body: " + postContent, ip)
 
-    print ("Found attack: " + request.url + postContent)
     return ""
 
 

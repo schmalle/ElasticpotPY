@@ -1,2 +1,2 @@
 13.02.2016: initial version
-
+07.10.2016: some changes in logging based on suggestions from Marco Ochse
