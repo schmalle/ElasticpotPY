@@ -1,6 +1,5 @@
-ElasticPot - Python edition
-
-Simple elasticpot honeypot
+**ElasticPot - an Elasticsearch honeypot**
+-------------------------------------------
 
 
 - compatible with DTAG T-Pot environment
@@ -13,12 +12,15 @@ markus_@_mschmall_de_
 @flakedev
 
 
-Installation hints:
--------------------
+_Installation hints:_
 
 Mac OS X:
 
 Use brew to install Python 3
+
+Install dependencies e.g. with pip
+
+pip install -r requirements.txt
 
 See the dockerfile for the dependencies in general.
 

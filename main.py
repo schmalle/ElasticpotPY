@@ -23,16 +23,17 @@ def getConfig():
     else:
         return (None, None, None, None)
 
+
 #
 # log data for DTAG TPot
 #
-def logData(attackerIP, attackerRequest, host):
+def logData(attackerIP, host, queryString):
 
     if os.path.isfile('/data/ews/conf/ews.cfg'):
 
         curDate = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%dT%H:%M:%S')
 
-        dumpStr = "{\"timestamp\":\"" + curDate + "\",\"event_type\":\"alert\",\"src_ip\":\""+attackerIP+"\",\"src_port\":44927,\"dest_ip\":\"127.0.0.1\",\"dest_port\":9200,\"honeypot\":{\"name\":\"Elasticpot\",\"nodeid\":\"elasticsearch\"}}\r\n"
+        dumpStr = "{\"timestamp\":\"" + curDate + "\",\"event_type\":\"alert\",\"src_ip\":\""+attackerIP+"\",\"src_port\":44927,\"dest_ip\":\"" + host +"\",\"dest_port\":9200,\"honeypot\":{\"name\":\"Elasticpot\",\"nodeid\":\"elasticsearch\",\"query\":\""+ queryString +"\"}}\r\n"
 
         with open("/data/elasticpot/log/elasticpot.log", "a") as myfile:
             myfile.write(dumpStr)
@@ -41,11 +42,11 @@ def logData(attackerIP, attackerRequest, host):
 #
 # send the data back to the defined server (e.g. DTAG T-Pot environment)
 #
-def postdata(url, content, ip):
+def postdata(url, content, ip, queryString):
 
     username, token, server, nodeid = getConfig()
 
-    logData(ip, url, server)
+    logData(ip, nodeid, queryString)
 
     if (username == None):
         return
@@ -91,8 +92,9 @@ def index():
 
     ip = request.environ.get('REMOTE_ADDR')
     username, token, server, nodeid = getConfig()
+    queryString = " "
 
-    logData(ip, request.url, server)
+    logData(ip, nodeid, queryString)
 
     return indexData
 
@@ -112,7 +114,7 @@ def error404(error):
     ip = request.environ.get('REMOTE_ADDR')
     username, token, server, nodeid = getConfig()
 
-    logData(ip, request.url, server)
+    logData(ip, nodeid, request.url)
 
     return indexData
 
@@ -125,7 +127,7 @@ def getindeces():
     ip = request.environ.get('REMOTE_ADDR')
     username, token, server, nodeid = getConfig()
 
-    logData(ip, request.url, server)
+    logData(ip, nodeid , '/_cat/indices')
 
     return indexData
 
@@ -134,7 +136,7 @@ def handleSearchExploitGet():
 
     ip = request.environ.get('REMOTE_ADDR')
 
-    postdata(request.url, request.url , ip)
+    postdata(request.url, request.url , ip, '/_search')
     print ("Found attack: " + request.url)
     return ""
 
@@ -149,7 +151,7 @@ def handleSearchExploit():
 
     print("Found possible attack (_search): " + request.url + postContent)
 
-    postdata(request.url, request.url + "Body: " + postContent, ip)
+    postdata(request.url, request.url + "Body: " + postContent, ip, "/_search")
 
     return ""
 
