@@ -7,6 +7,7 @@ import datetime
 import codecs
 
 
+
 #
 # read config from eventually existing T-Pot installation (see dtag-dev-sec.github.io)
 #
@@ -17,11 +18,12 @@ def getConfig():
         username = config2.get("EWS", "username")
         token = config2.get("EWS", "token")
         server = config2.get("EWS", "rhost_first")
-        nodeid = config2.get("GLASTOPFV3", "nodeid")
+        nodeid = config2.get("ELASTICPOT", "nodeid")
+        ignorecert = config2.get("EWS", "ignorecert")
 
-        return (username, token, server, nodeid)
+        return (username, token, server, nodeid, ignorecert)
     else:
-        return (None, None, None, None)
+        return (None, None, None, None, None)
 
 
 #
@@ -44,7 +46,7 @@ def logData(attackerIP, host, queryString):
 #
 def postdata(url, content, ip, queryString):
 
-    username, token, server, nodeid = getConfig()
+    username, token, server, nodeid, ignorecert = getConfig()
 
     logData(ip, nodeid, queryString)
 
@@ -71,7 +73,20 @@ def postdata(url, content, ip, queryString):
     xml = xml.replace("_TIME_", curDate)
 
     headers = {'Content-Type': 'application/xml'}
-    requests.post(server, data=xml, headers=headers)
+
+    #
+    # fix ignorecert to verifycert lopgic
+    #
+
+    if (ignorecert == None):
+        ignorecert = True
+    elif (ignorecert == "true"):
+        ignorecert = False
+    elif (ignorecert == "false"):
+        ignorecert = True
+
+
+    requests.post(server, data=xml, headers=headers, verify=ignorecert)
 
 
 @route('/_plugin/head')
@@ -118,6 +133,13 @@ def error404(error):
 
     return indexData
 
+
+@route('/favicon.ico', method='GET')
+def getindeces():
+    txt = open("./templates/favicon.ico.txt")
+    indexData = txt.read()
+
+    return indexData
 
 @route('/_cat/indices', method='GET')
 def getindeces():
