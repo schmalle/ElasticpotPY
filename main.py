@@ -112,7 +112,7 @@ def index():
     indexData = txt.read()
 
     ip = request.environ.get('REMOTE_ADDR')
-    username, token, server, nodeid = getConfig()
+    username, token, server, nodeid, ewssender = getConfig()
     queryString = " "
 
     logData(ip, nodeid, queryString)
@@ -133,7 +133,7 @@ def error404(error):
 
     print("Access to not existing ressource: " + request.url + postContent)
     ip = request.environ.get('REMOTE_ADDR')
-    username, token, server, nodeid = getConfig()
+    username, token, server, nodeid, ewssender = getConfig()
 
     logData(ip, nodeid, request.url)
 
@@ -153,7 +153,7 @@ def getindeces():
     indexData = txt.read()
 
     ip = request.environ.get('REMOTE_ADDR')
-    username, token, server, nodeid = getConfig()
+    username, token, server, nodeid, ewssender = getConfig()
 
     logData(ip, nodeid , '/_cat/indices')
 

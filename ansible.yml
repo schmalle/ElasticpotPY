@@ -1,0 +1,36 @@
+- hosts:
+    - all ansible_user=root
+  tasks:
+    - name: ping my elasticpot servers
+      action: ping
+
+    - name: update cache
+      action: apt update_cache=yes cache_valid_time=3600
+
+    - name: Creates directory
+      file: path=/data state=directory
+
+    - name: Create Elasticpot diretory
+      file: path=/data/elasticpot state=directory
+
+    - name: Create Elasticpot log diretory
+      file: path=/data/elasticpot/log state=directory mode=0777
+
+    - name: Install list of packages
+      apt: name={{item}} state=installed
+      with_items:
+        - git
+        - nmap
+        - nano
+        - python3
+        - python-pip
+        - python-minimal
+
+    - name: checkout elasticpot from github
+      git:
+        repo: https://github.com/schmalle/ElasticpotPY.git
+        dest: /opt/ElasticpotPY
+
+    - name: Install python dependencies
+      pip:
+          requirements: /opt/ElasticpotPY/requirements.txt
