@@ -19,11 +19,13 @@ def getConfig():
         token = config2.get("EWS", "token")
         server = config2.get("EWS", "rhost_first")
         nodeid = config2.get("ELASTICPOT", "nodeid")
+        ewssender = config2.get("ELASTICPOT", "elasticpot")
+
         ignorecert = config2.get("EWS", "ignorecert")
 
-        return (username, token, server, nodeid, ignorecert)
+        return (username, token, server, nodeid, ignorecert, ewssender)
     else:
-        return (None, None, None, None, None)
+        return (None, None, None, None, None, None)
 
 
 #
@@ -46,11 +48,15 @@ def logData(attackerIP, host, queryString):
 #
 def postdata(url, content, ip, queryString):
 
-    username, token, server, nodeid, ignorecert = getConfig()
+    username, token, server, nodeid, ignorecert, ewssender = getConfig()
 
     logData(ip, nodeid, queryString)
 
     if (username == None):
+        return
+
+    # use T-Pot sender directly ?
+    if (ewssender == "true"):
         return
 
     nodeid = "elasticpot-" + nodeid
