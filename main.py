@@ -82,9 +82,9 @@ def logData(querystring, postdata, ip,raw):
         data['timestamp'] = curDate
         data['event_type'] = "alert"
         data['src_ip'] = ip
-        data['src_port'] = str(srcport)
+        data['src_port'] = srcport
         data['dest_ip'] = hostip
-        data['dest_port'] = str(hostport)
+        data['dest_port'] = hostport
         data2 = {}
         data2['name'] = "Elasticpot"
         data2['nodeid'] = nodeid
