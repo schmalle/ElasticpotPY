@@ -7,6 +7,7 @@ import datetime
 import codecs
 import ipaddress
 import urllib.request
+from urllib.parse import quote
 import json
 
 ##########################
@@ -111,9 +112,9 @@ def logData(querystring, postdata, ip,raw):
         xml = xml.replace("_DSTPORT_", str(hostport))
         xml = xml.replace("_USERNAME_", username)
         xml = xml.replace("_TOKEN_", token)
-        xml = xml.replace("_URL_", querystring)
+        xml = xml.replace("_URL_", quote(str(querystring)))
         xml = xml.replace("_RAW_", raw)
-        xml = xml.replace("_DATA_", postdata)
+        xml = xml.replace("_DATA_", quote(str(postdata)))
         xml = xml.replace("_NODEID_", nodeid)
 
         curDate = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
