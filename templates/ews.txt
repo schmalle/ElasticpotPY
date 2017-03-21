@@ -6,7 +6,7 @@
 
     <Alert>
         <Analyzer id="_NODEID_"/>
-        <CreateTime tz="+0200">_TIME_</CreateTime>
+        <CreateTime tz="+0100">_TIME_</CreateTime>
         <Source category="ipv4" port="_SRCPORT_" protocol="tcp">_IP_</Source>
         <Target category="ipv4" port="_DSTPORT_" protocol="tcp">_TARGET_</Target>
         <Request type="url">_URL_</Request>
