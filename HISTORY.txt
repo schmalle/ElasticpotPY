@@ -2,3 +2,4 @@
 07.10.2016: some changes in logging based on suggestions from Marco Ochse
 16.10.2016: fixed some logging bugs
 17.03.2017: Added support for new ews poster configoptions from T-Pot (dtag-dev-sec.github.io)
+20.03.2017: Code refactoring, streamlined logging
