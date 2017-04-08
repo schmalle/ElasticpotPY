@@ -14,9 +14,9 @@ import json
 # Config section
 ##########################
 
-configfile = "/data/ews/conf/ews.cfg" # point to ews.cfg
+configfile = "/data/ews/conf/ews.cfg33" # point to ews.cfg
 hostport = 9200 # port to run elasticpot on
-
+hostip = "127.0.0.1"
 
 ##########################
 # FUNCTIONS
@@ -38,7 +38,7 @@ def getConfig():
         return (username, token, server, nodeid, ignorecert, ewssender, jsonpath)
     else:
         print("Failed to read configfile.")
-        return (None, None, None, None, None, None, None)
+        return (None, None, None, None, None, None, "/var/log/elasticpot.log")
 
 # re-assemble raw http request from request headers, return base64 encoded
 def createRaw(request):
@@ -75,24 +75,29 @@ def createRaw(request):
 def logData(querystring, postdata, ip,raw):
     username, token, server, nodeid, ignorecert, ewssender, jsonpath = getConfig()
 
+    curDate = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%dT%H:%M:%S')
+    data = {}
+    data['timestamp'] = curDate
+    data['event_type'] = "alert"
+    data['src_ip'] = ip
+    data['src_port'] = srcport
+    data['dest_ip'] = hostip
+    data['dest_port'] = hostport
+    data2 = {}
+    data2['name'] = "Elasticpot"
+    data2['nodeid'] = nodeid
+    data2['name'] = "Elasticpot"
+    data2['query'] = querystring
+    data2['postdata'] = postdata
+    data2['raw'] = raw
+    data['honeypot'] = data2
+
+    with open("/var/log/elasticpot.log", 'a') as outfile:
+        json.dump(data, outfile)
+        outfile.write('\n')
+
     # Send to json logfile
     if os.path.isfile(configfile) and ewssender.upper() == "TRUE":
-        curDate = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%dT%H:%M:%S')
-        data = {}
-        data['timestamp'] = curDate
-        data['event_type'] = "alert"
-        data['src_ip'] = ip
-        data['src_port'] = srcport
-        data['dest_ip'] = hostip
-        data['dest_port'] = hostport
-        data2 = {}
-        data2['name'] = "Elasticpot"
-        data2['nodeid'] = nodeid
-        data2['name'] = "Elasticpot"
-        data2['query'] = querystring
-        data2['postdata'] = postdata
-        data2['raw'] = raw
-        data['honeypot']=data2
         with open(jsonpath, 'a') as outfile:
             json.dump(data, outfile)
             outfile.write('\n')
@@ -163,7 +168,7 @@ def error404(error):
     postContent = ""
     for l in request.body:
         postContent += l.decode("utf-8")
-    print("Access to non existing ressource: " + request.url + " " + postContent)
+    print("Elasticpot: Access to non existing ressource: " + request.url + " " + postContent)
     ip = request.environ.get('REMOTE_ADDR')
 
     # Generate querystring
@@ -201,7 +206,7 @@ def getindeces():
 
     # Log request to console
     postContent = ""
-    print ("Found possible attack (/_cat/indices): " + request.url)
+    print ("Elasticpot: Found possible attack (/_cat/indices): " + request.url)
     ip = request.environ.get('REMOTE_ADDR')
 
     # Generate querystring
@@ -226,7 +231,7 @@ def handleSearchExploitGet():
 
     # Log request to console
     postContent = ""
-    print ("Found possible attack (_search): " + request.url)
+    print ("Elasticpot: Found possible attack (_search): " + request.url)
     ip = request.environ.get('REMOTE_ADDR')
 
     # Generate querystring
@@ -252,7 +257,7 @@ def handleSearchExploit():
     postContent = ""
     for l in request.body:
         postContent += l.decode("utf-8")
-    print("Found possible attack (_search): " + request.url + postContent)
+    print("Elasticpot: Found possible attack (_search): " + request.url + postContent)
     ip = request.environ.get('REMOTE_ADDR')
 
     # Generate querystring
@@ -280,7 +285,7 @@ def pluginhead():
     postContent = ""
     for l in request.body:
         postContent += l.decode("utf-8")
-    print("Access to ElasticSearch head plugin: " + request.url + " " + postContent)
+    print("Elasticpot: Access to ElasticSearch head plugin: " + request.url + " " + postContent)
     ip = request.environ.get('REMOTE_ADDR')
 
 	# Generate querystring
@@ -309,13 +314,19 @@ def pluginhead():
 ##### MAIN START
 ##########################
 
+#
+# define dummy variable
+#
+
 # initialize some data
 if os.path.isfile(configfile):
     config2 = configparser.ConfigParser()
     config2.read(configfile)
     hostip = config2.get("MAIN", "ip")
+
 # if IP is private, determine external ip via lookup
 if (ipaddress.ip_address(hostip).is_private):
+    print("Elasticpot: HostIP is private, trying to identify the public ip")
     extip = urllib.request.urlopen("http://showip.net").read().decode('utf-8')
     hostip=extip
 srcport = 44927 # Cannot be retrieved via bottles request api, this is just a dummy port
