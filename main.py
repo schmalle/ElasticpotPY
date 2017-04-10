@@ -14,9 +14,8 @@ import json
 # Config section
 ##########################
 
-configfile = "/data/ews/conf/ews.cfg33" # point to ews.cfg
+configfile = "elasticpot.cfg" # point to elasticpot.cfg or an ews.cfg if you use ewsposter
 hostport = 9200 # port to run elasticpot on
-hostip = "127.0.0.1"
 
 ##########################
 # FUNCTIONS
@@ -24,7 +23,6 @@ hostip = "127.0.0.1"
 
 # read config from eventually existing T-Pot installation (see dtag-dev-sec.github.io)
 def getConfig():
-    if os.path.isfile(configfile):
         config2 = configparser.ConfigParser()
         config2.read(configfile)
         username = config2.get("EWS", "username")
@@ -34,11 +32,9 @@ def getConfig():
         ewssender = config2.get("ELASTICPOT", "elasticpot")
         jsonpath = config2.get("ELASTICPOT", "logfile")
         ignorecert = config2.get("EWS", "ignorecert")
+        hostip = config2.get("MAIN", "ip")
 
-        return (username, token, server, nodeid, ignorecert, ewssender, jsonpath)
-    else:
-        print("Failed to read configfile.")
-        return (None, None, None, None, None, None, "/var/log/elasticpot.log")
+        return (username, token, server, nodeid, ignorecert, ewssender, jsonpath, hostip)
 
 # re-assemble raw http request from request headers, return base64 encoded
 def createRaw(request):
@@ -73,7 +69,7 @@ def createRaw(request):
 
 # Send data to either logfile (for ewsposter, location from ews.cfg) or directly to ews backend
 def logData(querystring, postdata, ip,raw):
-    username, token, server, nodeid, ignorecert, ewssender, jsonpath = getConfig()
+    global username, token, server, nodeid, ignorecert, ewssender, jsonpath, hostip
 
     curDate = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%dT%H:%M:%S')
     data = {}
@@ -92,10 +88,6 @@ def logData(querystring, postdata, ip,raw):
     data2['raw'] = raw
     data['honeypot'] = data2
 
-    with open("/var/log/elasticpot.log", 'a') as outfile:
-        json.dump(data, outfile)
-        outfile.write('\n')
-
     # Send to json logfile
     if os.path.isfile(configfile) and ewssender.upper() == "TRUE":
         with open(jsonpath, 'a') as outfile:
@@ -106,8 +98,8 @@ def logData(querystring, postdata, ip,raw):
     # send via own posting mechanism to defined server
     else:
         if (username == None or token == None):
-        	print("No credentials found in config file.")
-        	return
+            print("No credentials found in config file.")
+            return
         txt = open("./templates/ews.txt")
         xml = txt.read()
 
@@ -137,7 +129,12 @@ def logData(querystring, postdata, ip,raw):
         elif (ignorecert == "false"):
             ignorecert = True
 
-        requests.post(server, data=xml, headers=headers, verify=ignorecert)
+        try:
+            requests.post(server, data=xml, headers=headers, verify=ignorecert, timeout=5)
+        except requests.exceptions.Timeout:
+            print("Elasticpot: Error trying to submit attack: Connection timeout.")
+        except requests.exceptions.RequestException as e:
+            print(e)
 
 
 ##########################
@@ -314,22 +311,17 @@ def pluginhead():
 ##### MAIN START
 ##########################
 
-#
-# define dummy variable
-#
-
-# initialize some data
-if os.path.isfile(configfile):
-    config2 = configparser.ConfigParser()
-    config2.read(configfile)
-    hostip = config2.get("MAIN", "ip")
-
-# if IP is private, determine external ip via lookup
-if (ipaddress.ip_address(hostip).is_private):
-    print("Elasticpot: HostIP is private, trying to identify the public ip")
-    extip = urllib.request.urlopen("http://showip.net").read().decode('utf-8')
-    hostip=extip
-srcport = 44927 # Cannot be retrieved via bottles request api, this is just a dummy port
+# initialize relevant data from the config file
+if (not os.path.isfile(configfile)):
+    print("Elasticpot: Failed to read configfile. Elasticpot will exit.")
+    exit(1)
+else: 
+    username, token, server, nodeid, ignorecert, ewssender, jsonpath, hostip = getConfig()
+    # if IP is private, determine external ip via lookup
+    if (ipaddress.ip_address(hostip).is_private):
+        hostip = urllib.request.urlopen("http://showip.net").read().decode('utf-8')
+        print("Elasticpot: IP in config file is private. Determined the public IP %s" % hostip)
+    srcport = 44927 # Cannot be retrieved via bottles request api, this is just a dummy port
 # done Initialization
 
 # run server
