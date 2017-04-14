@@ -1,10 +1,9 @@
-from bottle import route, run, template, request, error
+from bottle import route, run, request, error
 import requests
 import os.path
 import configparser
 import base64
 import datetime
-import codecs
 import ipaddress
 import urllib.request
 from urllib.parse import quote
@@ -14,8 +13,8 @@ import json
 # Config section
 ##########################
 
-configfile = "elasticpot.cfg" # point to elasticpot.cfg or an ews.cfg if you use ewsposter
-hostport = 9200 # port to run elasticpot on
+configfile = "elasticpot.cfg"   # point to elasticpot.cfg or an ews.cfg if you use ewsposter
+hostport = 9200                 # port to run elasticpot on
 
 ##########################
 # FUNCTIONS
