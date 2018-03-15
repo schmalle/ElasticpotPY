@@ -316,10 +316,19 @@ if (not os.path.isfile(configfile)):
     exit(1)
 else: 
     username, token, server, nodeid, ignorecert, ewssender, jsonpath, hostip = getConfig()
-    # if IP is private, determine external ip via lookup
-    if (ipaddress.ip_address(hostip).is_private):
-        hostip = urllib.request.urlopen("http://showip.net").read().decode('utf-8')
-        print("Elasticpot: IP in config file is private. Determined the public IP %s" % hostip)
+    try:
+        if ((ipaddress.ip_address(hostip).is_private) and not (ipaddress.ip_address(hostip).is_global)):
+            if (ipaddress.ip_address(hostip).is_private):
+                try:
+                    # if IP is private, determine external ip via lookup
+                    hostip = requests.get('https://api.ipify.org', timeout=5).text
+                    print("Elasticpot: IP in config file is private. Determined the public IP %s" % hostip)
+                except:
+                    print("could not determine external IP address")
+    except:
+        print("IP is invalid in config file, please make sure to put a valid IP address in config file: " + hostip)
+        exit(1)
+
     srcport = 44927 # Cannot be retrieved via bottles request api, this is just a dummy port
 # done Initialization
 
