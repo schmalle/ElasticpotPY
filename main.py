@@ -250,7 +250,6 @@ def handleSearchExploitGet():
 
 	# Log the data
     logData(httpreq, postContent, ip, requestheaders64)
-    print (request.environ)
 
     return ""
 
