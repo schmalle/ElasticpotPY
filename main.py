@@ -8,6 +8,7 @@ import ipaddress
 import urllib.request
 from urllib.parse import quote
 import json
+import re
 
 ##########################
 # Config section
@@ -76,7 +77,14 @@ def logData(querystring, postdata, ip,raw):
     data['event_type'] = "alert"
     data['src_ip'] = ip
     data['src_port'] = srcport
-    data['dest_ip'] = hostip
+#    data['dest_ip'] = hostip
+    urlparts = request.environ.get('bottle.request.urlparts')
+    pattern = re.compile(r"(?:(?:25[0-5]|2[0-4]\d|[01]?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d?\d)")    
+    destip = str(pattern.search(str(urlparts)).group())
+    if destip == None :
+        data['dest_ip'] = hostip
+    else:
+        data['dest_ip'] = destip
     data['dest_port'] = hostport
     data2 = {}
     data2['name'] = "Elasticpot"
@@ -242,6 +250,7 @@ def handleSearchExploitGet():
 
 	# Log the data
     logData(httpreq, postContent, ip, requestheaders64)
+    print (request.environ)
 
     return ""
 
